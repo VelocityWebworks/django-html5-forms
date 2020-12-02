@@ -51,7 +51,7 @@ class Html5Field(forms.fields.Field):
             widget_attrs['required'] = None
             current_class.append('required')
 
-        if isinstance(self.class_attr, (str, unicode)):
+        if isinstance(self.class_attr, str):
             self.class_attr = self.class_attr.split()
 
         for classitem in self.class_attr:
