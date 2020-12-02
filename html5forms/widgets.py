@@ -1,9 +1,8 @@
 from django import forms
+from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
-from django.utils.encoding import force_unicode, force_text
-from django.utils.html import format_html
-from util import flatatt, render_datalist
-from django.utils.html import conditional_escape
+
+from .util import flatatt, render_datalist
 
 
 class Html5Textarea(forms.widgets.Textarea):
@@ -18,8 +17,8 @@ class Html5Textarea(forms.widgets.Textarea):
             value = ''
         final_attrs = self.build_attrs(attrs, name=name)
 
-        return mark_safe(u'<textarea%s>%s</textarea>' % (flatatt(final_attrs),
-                conditional_escape(force_unicode(value))))
+        return mark_safe('<textarea%s>%s</textarea>' % (flatatt(final_attrs),
+                conditional_escape(value)))
 
 
 class Html5TextInput(forms.widgets.TextInput):
@@ -31,15 +30,15 @@ class Html5TextInput(forms.widgets.TextInput):
 
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_unicode(self._format_value(value))
+            final_attrs['value'] = self._format_value(value)
         if getattr(self, 'datalist', None) and isinstance(self.datalist, (tuple, list)):
-            datalist_name = u'%s_datalist' % name
-            final_attrs['list'] = force_unicode(u'%s_datalist' % name)
-            return mark_safe(u"""<input%s >%s"""
+            datalist_name = '%s_datalist' % name
+            final_attrs['list'] = '%s_datalist' % name
+            return mark_safe("""<input%s >%s"""
                     % (flatatt(final_attrs),
                         render_datalist(datalist_name, self.datalist)))
         else:
-            return mark_safe(u'<input%s >' % flatatt(final_attrs))
+            return mark_safe('<input%s >' % flatatt(final_attrs))
 
 
 class Html5PasswordInput(Html5TextInput):
@@ -63,8 +62,8 @@ class Html5CheckboxInput(forms.widgets.CheckboxInput):
             final_attrs['checked'] = 'checked'
         if value not in ('', True, False, None):
             # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_unicode(value)
-        return mark_safe(u'<input%s />' % flatatt(final_attrs))
+            final_attrs['value'] = value
+        return mark_safe('<input%s />' % flatatt(final_attrs))
 
 
 class Html5SearchInput(Html5TextInput):
@@ -94,7 +93,7 @@ class Html5RangeInput(Html5NumberInput):
 class Html5Select(forms.Select):
 
     def render_option(self, selected_choices, option_value, option_label, *args, **kw):
-        option_value = force_text(option_value)
+        option_value = option_value
         selected_html = ''
         if args and type(args[0]) == type({}):
             selected_html += flatatt(args[0])
@@ -104,7 +103,7 @@ class Html5Select(forms.Select):
                 # Only allow for a single selection.
                 selected_choices.remove(option_value)
         selected_html = mark_safe(selected_html)
-        return format_html(u'<option value="{0}"{1}>{2}</option>',
+        return format_html('<option value="{0}"{1}>{2}</option>',
                 option_value, selected_html, force_unicode(option_label))
 
 class Html5TelInput(Html5TextInput):

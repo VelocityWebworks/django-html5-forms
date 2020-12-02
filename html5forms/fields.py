@@ -1,14 +1,14 @@
+from urllib.parse import urlsplit, urlunsplit
 from django import forms
-from django.utils import formats
+from django.core import exceptions, validators
 from django.core.exceptions import ValidationError
-from widgets import Html5TextInput, Html5PasswordInput, Html5CheckboxInput
-from widgets import Html5SearchInput, Html5EmailInput, Html5Select, Html5TelInput
-from widgets import Html5URLInput, Html5NumberInput, Html5RangeInput
-from django.core import validators, exceptions
-from django.utils.encoding import smart_unicode
+from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
-import urlparse
 
+from .widgets import (Html5CheckboxInput, Html5EmailInput, Html5NumberInput,
+                      Html5PasswordInput, Html5RangeInput, Html5SearchInput,
+                      Html5Select, Html5TelInput, Html5TextInput,
+                      Html5URLInput)
 
 __all__ = (
         'Html5Field', 'Html5CharField', 'Html5PasswordField',
@@ -129,7 +129,7 @@ class Html5CharField(Html5Field):
     def to_python(self, value):
         if value in validators.EMPTY_VALUES:
             return u''
-        return smart_unicode(value)
+        return value
 
     def widget_attrs(self, widget):
         par_attrs = super(Html5CharField, self).widget_attrs(widget)
@@ -221,11 +221,11 @@ class Html5URLField(Html5CharField):
             if '://' not in value:
                 # If no URL scheme given, assume http://
                 value = u'http://%s' % value
-            url_fields = list(urlparse.urlsplit(value))
+            url_fields = list(urlsplit(value))
             if not url_fields[2]:
                 # the path portion may need to be added before query params
                 url_fields[2] = '/'
-                value = urlparse.urlunsplit(url_fields)
+                value = urlunsplit(url_fields)
         return super(Html5URLField, self).to_python(value)
 
 
@@ -375,7 +375,7 @@ class Html5ChoiceField(Html5Field):
         "Returns a Unicode object."
         if value in validators.EMPTY_VALUES:
             return u''
-        return smart_unicode(value)
+        return value
 
     def validate(self, value):
         """
@@ -392,9 +392,9 @@ class Html5ChoiceField(Html5Field):
                 # This is an optgroup, so look inside the group for options
                 for x in v:
                     k2 = x[0]
-                    if value == smart_unicode(k2):
+                    if value == k2:
                         return True
             else:
-                if value == smart_unicode(k):
+                if value == k:
                     return True
         return False
